@@ -17,7 +17,8 @@ python3 --version
 Env in local for Python
 ```console
 # MacOs
-python3 -m venv ./alfred_env 
+python3 -m venv ./alfred_env
+## Enter in Python Env
 source ./alfred_env/bin/activate 
 ```
 
