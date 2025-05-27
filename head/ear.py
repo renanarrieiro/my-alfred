@@ -1,56 +1,62 @@
 import speech_recognition as sr
 import os
-import threading
-from mtranslate import translate
+import multiprocessing as mp
+from deep_translator import GoogleTranslator
 from colorama import Fore, Style, init
 
 init(autoreset=True)
 
-def print_loop():
-    while True:
-        print(Fore.GREEN + "I am listing...", end="", flush=True)
-        print(Style.RESET_ALL, end="", flush=True)
-        print("", end="", flush=True)
-
 def trans_pt_to_en(text):
-    english_text = translate(text, to_language="en-US")
-    return english_text
+    try:
+        english_text = GoogleTranslator(source="pt", target="en").translate(text)
+        return english_text
+    except Exception as e:
+        print(Fore.RED + f"[ERROR] Translation failed: {e}")
+        return ""
 
-def listen():
+def listen_and_translate():
     recognizer = sr.Recognizer()
-    recognizer.dynamic_energy_threshold = False # Representa o limite do nível de energia para sons dinamicamente.
-    recognizer.energy_threshold = 3000 # Representa o limite do nível de energia para sons.
-    recognizer.dynamic_energy_adjustment_damping = 0.15 # Fração do limite de energia atual que é retida após um segundo de ajuste do limite dinâmico
-    #recognizer.dynamic_energy_ratio = 1.9
-    recognizer.pause_threshold = 2.5 # Representa a duração mínima do silêncio (em segundos) que será registrado como o final de uma frase
-    recognizer.operation_timeout = None # Representa o tempo limite (em segundos) para operações internas, como solicitações de API.
-    #recognizer.non_speaking_duration = 0.1
+    recognizer.dynamic_energy_threshold = False
+    recognizer.energy_threshold = 3000
+    recognizer.pause_threshold = 2.5
 
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
+        print(Fore.GREEN + "I am listening...")
+
         while True:
-            print(Fore.GREEN + "I am listing...\r", end="", flush=True)
             try:
-                audio = recognizer.listen(source, timeout=None)
-                print("\r" + Fore.YELLOW + "Got it, now recognizing", end="clear", flush=True)
-                recognized_text = recognizer.recognize_google(audio, language="pt-BR").lower()
-                if recognized_text:
-                    translated_text = trans_pt_to_en(recognized_text)
-                    print("\r" + Fore.BLUE + "Mr Renan: " + translated_text, end="", flush=True)
-                    return translated_text
-                else:
-                    return ""
+                print(Fore.GREEN + "\nSpeak something:")
+                audio = recognizer.listen(source)
+                print(Fore.YELLOW + "Processing...")
+
+                recognized_text = recognizer.recognize_google(audio, language="pt-BR")
+                print(Fore.WHITE + f"\nYou said: {recognized_text}")
+
+                translated_text = trans_pt_to_en(recognized_text)
+                print(Fore.CYAN + f"Translation (EN): {translated_text}")
+
             except sr.UnknownValueError:
-                recognized_text = ""
-            finally:
-                print("\r", end="", flush=True)
+                print(Fore.RED + "Could note understand audio.")
 
-            os.system("cls" if os.name == "nt" else "clear")
+            except sr.RequestError as ex:
+                print(Fore.RED + f"API error: {ex}")
 
-            # threading part
-            listen_thread = threading.Thread(target=listen)
-            print_thread = threading.Thread(target=print_loop)
-            listen_thread.start()
-            print_thread.start()
-            listen_thread.join()
-            print_thread.join()
+            except KeyboardInterrupt:
+                print(Fore.MAGENTA + "/n[Stopped by user]")
+
+def main():
+    process = mp.Process(target=listen_and_translate)
+    process.start()
+    try:
+        process.join()
+    except KeyboardInterrupt:
+        print(Fore.RED + "\n[Main Process] Interrupt received. Terminating child process...")
+        process.terminate()
+        process.join()
+
+
+if __name__ == "__main__":
+    mp.set_start_method("spawn")
+    os.system("cls" if os.name == "nt" else "clear")
+    main()
