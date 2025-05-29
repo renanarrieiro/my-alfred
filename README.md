@@ -32,4 +32,7 @@ python3.13 -m pip install SpeechRecognition
 python3.13 -m pip install deep-translator
 python3.13 -m pip install colorama
 ```
-
+Library IA
+```console
+pip install google-generativeai # Google Gemini
+```
