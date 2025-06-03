@@ -2,3 +2,4 @@
 .env
 /.vscode
 /alfred_env
+*.pyc

@@ -8,30 +8,30 @@ from colorama import Fore, Style, init
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
 
-def translate_pt_to_en(text):
-    """
-    Translate Portuguese text to English with improved error handling.
+# def translate_pt_to_en(text):
+#     """
+#     Translate Portuguese text to English with improved error handling.
     
-    Args:
-        text (str): Portuguese text to translate
+#     Args:
+#         text (str): Portuguese text to translate
         
-    Returns:
-        str: English translation or empty string if translation fails
-    """
-    if not text.strip():  # Handle empty or whitespace-only text
-        return ""
+#     Returns:
+#         str: English translation or empty string if translation fails
+#     """
+#     if not text.strip():  # Handle empty or whitespace-only text
+#         return ""
     
-    try:
-        # Create translator instance and perform translation
-        translator = GoogleTranslator(source="pt", target="en")
-        english_text = translator.translate(text)
-        return english_text if english_text else ""
+#     try:
+#         # Create translator instance and perform translation
+#         translator = GoogleTranslator(source="pt", target="en")
+#         english_text = translator.translate(text)
+#         return english_text if english_text else ""
         
-    except Exception as e:
-        print(Fore.RED + f"[ERROR] Translation failed: {e}")
-        # Return original text as fallback so user doesn't lose their input
-        print(Fore.YELLOW + f"[FALLBACK] Original text: {text}")
-        return ""
+#     except Exception as e:
+#         print(Fore.RED + f"[ERROR] Translation failed: {e}")
+#         # Return original text as fallback so user doesn't lose their input
+#         print(Fore.YELLOW + f"[FALLBACK] Original text: {text}")
+#         return ""
     
 def setup_recognizer():
     """
@@ -43,17 +43,17 @@ def setup_recognizer():
     recognizer = sr.Recognizer()
     
     # Disable dynamic energy threshold for more consistent recognition
-    recognizer.dynamic_energy_threshold = False
+    recognizer.dynamic_energy_threshold = True
     # Set energy threshold (adjust based on your environment)
-    recognizer.energy_threshold = 3000
+    #recognizer.energy_threshold = 3000
     # Set pause threshold (how long to wait for silence before processing)
-    recognizer.pause_threshold = 2.5
+    recognizer.pause_threshold = 2.0
     # Set timeout for listening (prevents hanging indefinitely)
-    recognizer.phrase_time_limit = 10  # 10 seconds max per phrase
+    #recognizer.phrase_time_limit = 10  # 10 seconds max per phrase
     
     return recognizer
 
-def listen_and_translate():
+def listen():
     """
     Main function that continuously listens for speech, recognizes it,
     and translates from Portuguese to English.
@@ -86,55 +86,57 @@ def listen_and_translate():
                     # If no speech detected, continue loop (avoids spam)
                     continue
             
-            print(Fore.YELLOW + "⏳ Processing speech...")
+            # print(Fore.YELLOW + "⏳ Processing speech...")
               # Recognize speech using Google's service
             try:
                 recognized_text = recognizer.recognize_google(audio, language="pt-BR")
-                print(Fore.WHITE + f"🗣️  You said: {recognized_text}")
+                # print(Fore.WHITE + f"🗣️  You said: {recognized_text}")
+
+                return f"{recognized_text}"
                 
                 # Translate the recognized text
-                print(Fore.CYAN + "🔄 Translating...")
-                translated_text = translate_pt_to_en(recognized_text)
+                # print(Fore.CYAN + "🔄 Translating...")
+                # translated_text = translate_pt_to_en(recognized_text)
                 
-                if translated_text:
-                    print(Fore.CYAN + f"🌍 Translation (EN): {translated_text}")
-                else:
-                    print(Fore.RED + "❌ Translation unavailable")
+                # if translated_text:
+                #     print(Fore.CYAN + f"🌍 Translation (EN): {translated_text}")
+                # else:
+                #     print(Fore.RED + "❌ Translation unavailable")
                     
-                print("-" * 50)  # Visual separator
+                #print("-" * 50)  # Visual separator
                 
             except sr.UnknownValueError:
                 print(Fore.RED + "❓ Could not understand audio. Please speak clearly.")
                 
             except sr.RequestError as ex:
                 print(Fore.RED + f"🌐 Google Speech Recognition API error: {ex}")
-                print(Fore.YELLOW + "💡 Check your internet connection")
+                # print(Fore.YELLOW + "💡 Check your internet connection")
 
         except KeyboardInterrupt:
-            print(Fore.MAGENTA + "\n👋 Goodbye! Stopping speech recognition.")
+            # print(Fore.MAGENTA + "\n👋 Goodbye! Stopping speech recognition.")
             break
             
         except Exception as e:
-            print(Fore.RED + f"❌ Unexpected error: {e}")
-            print(Fore.YELLOW + "🔄 Continuing to listen...")
+            # print(Fore.RED + f"❌ Unexpected error: {e}")
+            # print(Fore.YELLOW + "🔄 Continuing to listen...")
             # Add small delay to prevent rapid error loops
             time.sleep(1)
     
-def main():
-    """
-    Main entry point - simplified without unnecessary multiprocessing.
-    """
-    try:
-        # Clear screen for clean start
-        os.system("cls" if os.name == "nt" else "clear")
+# def main():
+#     """
+#     Main entry point - simplified without unnecessary multiprocessing.
+#     """
+#     try:
+#         # Clear screen for clean start
+#         os.system("cls" if os.name == "nt" else "clear")
         
-        # Start the main listening loop
-        listen_and_translate()
+#         # Start the main listening loop
+#         listen()
         
-    except KeyboardInterrupt:
-        print(Fore.RED + "\n🛑 Program interrupted by user")
-    except Exception as e:
-        print(Fore.RED + f"❌ Fatal error: {e}")
+#     except KeyboardInterrupt:
+#         print(Fore.RED + "\n🛑 Program interrupted by user")
+#     except Exception as e:
+#         print(Fore.RED + f"❌ Fatal error: {e}")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

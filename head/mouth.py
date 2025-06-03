@@ -67,18 +67,18 @@ class TTSManager:
         for attempt in range(max_attempts):
             try:
                 os.remove(file_path)
-                print(f"✓ Cleaned up temporary file: {Path(file_path).name}")
+                #print(f"✓ Cleaned up temporary file: {Path(file_path).name}")
                 return
             except PermissionError:
                 # File might still be in use, wait and retry
                 if attempt < max_attempts - 1:
-                    print(f"File in use, retrying in {delay}s... (attempt {attempt + 1}/{max_attempts})")
+                    #print(f"File in use, retrying in {delay}s... (attempt {attempt + 1}/{max_attempts})")
                     time.sleep(delay)
                     delay *= 2  # Exponential backoff
-                else:
-                    print(f"⚠️ Could not remove {file_path} after {max_attempts} attempts")
+                # else:
+                    # print(f"⚠️ Could not remove {file_path} after {max_attempts} attempts")
             except Exception as ex:
-                print(f"❌ Unexpected error removing file: {ex}")
+                # print(f"❌ Unexpected error removing file: {ex}")
                 break
     
     def _play_audio_sync(self, file_path: str):
@@ -104,10 +104,10 @@ class TTSManager:
                 pygame.time.wait(50)  # Check every 50ms instead of 100ms
                 
         except pygame.error as ex:
-            print(f"❌ Pygame audio error: {ex}")
+            # print(f"❌ Pygame audio error: {ex}")
             raise
         except Exception as ex:
-            print(f"❌ Audio playback error: {ex}")
+            # print(f"❌ Audio playback error: {ex}")
             raise
     
     async def _generate_audio(self, text: str, output_file: str):
@@ -122,9 +122,9 @@ class TTSManager:
             # Create the TTS communication object
             communicate = edge_tts.Communicate(text, self.voice)
             await communicate.save(output_file)
-            print(f"✓ Audio generated: {Path(output_file).name}")
+            # print(f"✓ Audio generated: {Path(output_file).name}")
         except Exception as ex:
-            print(f"❌ TTS generation failed: {ex}")
+            # print(f"❌ TTS generation failed: {ex}")
             raise
     
     async def speak_async(self, text: str, output_file: Optional[str] = None) -> None:
@@ -142,7 +142,7 @@ class TTSManager:
             output_file = self._create_temp_file()
         
         try:
-            print(f"🗣️ Converting to speech: '{text[:50]}{'...' if len(text) > 50 else ''}'")
+            # print(f"🗣️ Converting to speech: '{text[:50]}{'...' if len(text) > 50 else ''}'")
             
             # Generate the audio file
             await self._generate_audio(text, output_file)
@@ -156,10 +156,10 @@ class TTSManager:
             thread.start()
             thread.join()  # Wait for playback to complete
             
-            print("✓ Playback completed")
+            # print("✓ Playback completed")
             
         except Exception as ex:
-            print(f"❌ TTS operation failed: {ex}")
+            # print(f"❌ TTS operation failed: {ex}")
             raise
         finally:
             # Clean up temporary file only if we created it
@@ -188,9 +188,8 @@ class TTSManager:
         if self.pygame_initialized:
             pygame.mixer.quit()
             self.pygame_initialized = False
-            print("✓ TTS system cleaned up")
+            # print("✓ TTS system cleaned up")
 
-# Convenience function that maintains compatibility with your original interface
 def speak(text: str, output_file: Optional[str] = None):
     """
     Simple function interface for text-to-speech.
@@ -206,15 +205,15 @@ def speak(text: str, output_file: Optional[str] = None):
     finally:
         tts.cleanup()
 
-# Example usage and testing
-if __name__ == "__main__":
-    # Test the improved system
-    print("🎵 Testing improved TTS system...")
+# # Example usage and testing
+# if __name__ == "__main__":
+#     # Test the improved system
+#     print("🎵 Testing improved TTS system...")
     
-    # Test basic functionality
-    speak("Welcome to the improved Alfred world. This system is more robust and efficient.")
+#     # Test basic functionality
+#     speak("Welcome to the improved Alfred world. This system is more robust and efficient.")
     
-    # Test with custom file (optional)
-    # speak("This is a test with a custom file.", "custom_speech.mp3")
+#     # Test with custom file (optional)
+#     # speak("This is a test with a custom file.", "custom_speech.mp3")
     
-    print("✅ TTS testing completed!")
+#     print("✅ TTS testing completed!")
